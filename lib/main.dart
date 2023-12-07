@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jasper_weight_tracker/firebase_options.dart';
+import 'package:jasper_weight_tracker/login.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'main.g.dart';
@@ -16,8 +17,8 @@ void main() async {
 }
 
 @riverpod
-Stream<User?> loggedInUser(LoggedInUserRef ref) async* {
-  FirebaseAuth.instance.authStateChanges();
+Stream<User?> loggedInUser(LoggedInUserRef ref) {
+  return FirebaseAuth.instance.authStateChanges();
 }
 
 class MyApp extends ConsumerWidget {
@@ -28,16 +29,17 @@ class MyApp extends ConsumerWidget {
     final loggedInUser = ref.watch(loggedInUserProvider);
 
     return MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        home: switch (loggedInUser) {
-          AsyncValue(:final value) => null == value
-              ? MyHomePage(title: "logged out")
-              : MyHomePage(title: "logged in"),
-        });
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: loggedInUser.when(
+        data: (user) => null == user ? LoginPage(title: "Login") : MyHomePage(title: "title"),
+        error: (a, b) => MyHomePage(title: "Error"),
+        loading: () => MyHomePage(title: "Loading"),
+      ),
+    );
   }
 }
 
