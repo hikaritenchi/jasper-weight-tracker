@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-
-final db = FirebaseFirestore.instance;
+import 'package:jasper_weight_tracker/constants.dart';
 
 class EntryForm extends HookWidget {
   const EntryForm({super.key});
@@ -20,7 +18,7 @@ class EntryForm extends HookWidget {
           TextFormField(
             autovalidateMode: AutovalidateMode.onUserInteraction,
             controller: controller,
-            onChanged: (value) {
+            onChanged: (_) {
               valid.value = formKey.currentState!.validate();
             },
             validator: (value) {
@@ -35,7 +33,7 @@ class EntryForm extends HookWidget {
           ),
           ElevatedButton(
             onPressed:
-            !valid.value ? null : () => addWeightToDb(controller, valid),
+                !valid.value ? null : () => addWeightToDb(controller, valid),
             child: const Text("Enter"),
           ),
         ],
@@ -49,8 +47,8 @@ addWeightToDb(final controller, final valid) {
     "weight": controller.text,
     "time": FieldValue.serverTimestamp(),
   };
-  db
-      .collection("weights-${FirebaseAuth.instance.currentUser?.uid}")
+  FirebaseFirestore.instance
+      .collection(weightsCollection)
       .add(weight)
       .then((_) {
     controller.text = "";

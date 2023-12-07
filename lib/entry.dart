@@ -4,7 +4,7 @@ import 'package:jasper_weight_tracker/weight_list.dart';
 import 'entry_form.dart';
 
 class EntryPage extends StatelessWidget {
-  EntryPage({super.key, required this.title});
+  const EntryPage({super.key, required this.title});
 
   final String title;
 

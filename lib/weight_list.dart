@@ -1,17 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:jasper_weight_tracker/constants.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'weight_list.g.dart';
 
 @riverpod
 Stream<QuerySnapshot> weightStream(WeightStreamRef ref) {
-  return FirebaseFirestore.instance
-      .collection("weights-${FirebaseAuth.instance.currentUser?.uid}")
-      .snapshots();
+  return FirebaseFirestore.instance.collection(weightsCollection).snapshots();
 }
 
 class WeightList extends ConsumerWidget {
@@ -36,9 +34,10 @@ class WeightList extends ConsumerWidget {
               return rightTimestamp.millisecondsSinceEpoch -
                   leftTimestamp.millisecondsSinceEpoch;
             });
+
             return ListView(
               children: docs.map(
-                    (doc) {
+                (doc) {
                   final data = doc.data()! as Map<String, dynamic>;
                   final time = data['time'] as Timestamp?;
                   if (null == time) return Container();

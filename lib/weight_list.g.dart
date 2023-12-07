@@ -6,7 +6,7 @@ part of 'weight_list.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$weightStreamHash() => r'5de43c3f05443e318b3d989f88c51ee54742494a';
+String _$weightStreamHash() => r'c66601309dbf3fbaff838d1d0544ff2c5af2d423';
 
 /// See also [weightStream].
 @ProviderFor(weightStream)
