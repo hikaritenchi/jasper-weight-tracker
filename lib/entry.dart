@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class EntryPage extends ConsumerWidget {
-  const EntryPage({super.key, required this.title});
+class EntryPage extends StatelessWidget {
+  EntryPage({super.key, required this.title});
 
   final String title;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final list = List<String>.generate(15, (i) => "item $i");
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -18,8 +19,7 @@ class EntryPage extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            TextFormField(),
-            ElevatedButton(onPressed: null, child: Text("Enter")),
+            EntryForm(),
             Expanded(
               child: ListView.builder(
                   itemCount: list.length,
@@ -29,6 +29,44 @@ class EntryPage extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class EntryForm extends HookWidget {
+  const EntryForm({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final formKey = useMemoized(GlobalKey<FormState>.new);
+    final controller = useTextEditingController();
+    final valid = useState(false);
+    return Form(
+      key: formKey,
+      child: Column(
+        children: [
+          TextFormField(
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            controller: controller,
+            onChanged: (value) {
+              valid.value = formKey.currentState!.validate();
+            },
+            validator: (value) {
+              if (null == value) return "Can't be empty";
+              if (double.tryParse(value) == null) {
+                return "Invalid Input";
+              }
+              return null;
+            },
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: "Enter your weight"),
+          ),
+          ElevatedButton(
+            onPressed: !valid.value ? null : () {},
+            child: const Text("Enter"),
+          ),
+        ],
       ),
     );
   }
