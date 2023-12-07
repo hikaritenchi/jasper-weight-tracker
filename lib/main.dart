@@ -39,7 +39,7 @@ class MyApp extends ConsumerWidget {
       home: loggedInUser.when(
         data: (user) => null == user
             ? const LoginPage(title: "Login")
-            : const EntryPage(title: "title"),
+            : EntryPage(title: "Jasper Weight Tracker"),
         error: (a, b) => const StatusPage(title: "Error"),
         loading: () => const StatusPage(title: "Loading"),
       ),

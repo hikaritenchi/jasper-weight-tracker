@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'entry.g.dart';
@@ -64,16 +66,7 @@ class EntryForm extends HookWidget {
             decoration: const InputDecoration(labelText: "Enter your weight"),
           ),
           ElevatedButton(
-            onPressed: !valid.value ? null : () {
-              final weight = <String, dynamic>{
-                "weight": controller.text,
-                "time": DateTime.now().millisecondsSinceEpoch,
-              };
-              db.collection("weights").add(weight).then((_) {
-                controller.text = "";
-                valid.value = false;
-              } );
-            },
+            onPressed: !valid.value ? null : addWeightToDb(controller, valid),
             child: const Text("Enter"),
           ),
         ],
@@ -82,9 +75,25 @@ class EntryForm extends HookWidget {
   }
 }
 
+addWeightToDb(final controller, final valid) {
+  final weight = <String, dynamic>{
+    "weight": controller.text,
+    "time": FieldValue.serverTimestamp(),
+  };
+  db
+      .collection("weights-${FirebaseAuth.instance.currentUser?.uid}")
+      .add(weight)
+      .then((_) {
+    controller.text = "";
+    valid.value = false;
+  });
+}
+
 @riverpod
 Stream<QuerySnapshot> weightStream(WeightStreamRef ref) {
-  return FirebaseFirestore.instance.collection("weights").snapshots();
+  return FirebaseFirestore.instance
+      .collection("weights-${FirebaseAuth.instance.currentUser?.uid}")
+      .snapshots();
 }
 
 class WeightList extends ConsumerWidget {
@@ -103,7 +112,8 @@ class WeightList extends ConsumerWidget {
                   final data = doc.data()! as Map<String, dynamic>;
                   return ListTile(
                       title: Text(data['weight']),
-                      subtitle: Text(data['time'].toString()));
+                      subtitle: Text(DateFormat("yyyy-MM-dd HH:mm:ss")
+                          .format((data['time'] as Timestamp).toDate())));
                 },
               ).toList(),
             );
