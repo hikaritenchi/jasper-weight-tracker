@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'entry.g.dart';
 
 final db = FirebaseFirestore.instance;
 
@@ -23,13 +27,7 @@ class EntryPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             EntryForm(),
-            Expanded(
-              child: ListView.builder(
-                  itemCount: list.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(title: Text(list[index]));
-                  }),
-            ),
+            WeightList(),
           ],
         ),
       ),
@@ -80,6 +78,38 @@ class EntryForm extends HookWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+@riverpod
+Stream<QuerySnapshot> weightStream(WeightStreamRef ref) {
+  return FirebaseFirestore.instance.collection("weights").snapshots();
+}
+
+class WeightList extends ConsumerWidget {
+  const WeightList({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final weightStream = ref.watch(weightStreamProvider);
+
+    return Expanded(
+      child: weightStream.when(
+          data: (snapshot) {
+            return ListView(
+              children: snapshot.docs.map(
+                (doc) {
+                  final data = doc.data()! as Map<String, dynamic>;
+                  return ListTile(
+                      title: Text(data['weight']),
+                      subtitle: Text(data['time'].toString()));
+                },
+              ).toList(),
+            );
+          },
+          error: (e, a) => const Text("error"),
+          loading: () => const Text("loading")),
     );
   }
 }
