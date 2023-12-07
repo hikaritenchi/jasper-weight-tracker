@@ -24,7 +24,7 @@ class EntryPage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(title),
       ),
-      body: Center(
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -66,7 +66,8 @@ class EntryForm extends HookWidget {
             decoration: const InputDecoration(labelText: "Enter your weight"),
           ),
           ElevatedButton(
-            onPressed: !valid.value ? null : addWeightToDb(controller, valid),
+            onPressed:
+                !valid.value ? null : () => addWeightToDb(controller, valid),
             child: const Text("Enter"),
           ),
         ],
@@ -106,14 +107,28 @@ class WeightList extends ConsumerWidget {
     return Expanded(
       child: weightStream.when(
           data: (snapshot) {
+            final docs = snapshot.docs;
+            docs.sort((left, right) {
+              final leftData = left.data()! as Map<String, dynamic>;
+              final rightData = right.data()! as Map<String, dynamic>;
+              final leftTimestamp = leftData['time'] as Timestamp?;
+              final rightTimestamp = rightData['time'] as Timestamp?;
+
+              if (null == leftTimestamp || null == rightTimestamp) return 0;
+
+              return rightTimestamp.millisecondsSinceEpoch -
+                  leftTimestamp.millisecondsSinceEpoch;
+            });
             return ListView(
-              children: snapshot.docs.map(
+              children: docs.map(
                 (doc) {
                   final data = doc.data()! as Map<String, dynamic>;
+                  final time = data['time'] as Timestamp?;
+                  if (null == time) return Container();
                   return ListTile(
                       title: Text(data['weight']),
                       subtitle: Text(DateFormat("yyyy-MM-dd HH:mm:ss")
-                          .format((data['time'] as Timestamp).toDate())));
+                          .format(time.toDate())));
                 },
               ).toList(),
             );
