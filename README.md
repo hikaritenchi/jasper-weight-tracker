@@ -25,3 +25,9 @@ The file organization is mostly based on UI and UI components rather than separa
 
 In my experience, for smaller projects like this, it becomes quickly unwieldy to separate out data layers vs. screens, especially given the limitations.
 For example, having only a single login function in an enclosing interface-like structure increases boilerplate while obfuscating functionality and increases the likelihood of confusion. 
+
+## Video
+
+
+https://github.com/hikaritenchi/jasper-weight-tracker/assets/1131789/4fb5ffc6-6cd3-4901-82a9-635108932e2f
+
