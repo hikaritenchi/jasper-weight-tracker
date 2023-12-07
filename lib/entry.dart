@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+
+final db = FirebaseFirestore.instance;
 
 class EntryPage extends StatelessWidget {
   EntryPage({super.key, required this.title});
@@ -63,7 +66,16 @@ class EntryForm extends HookWidget {
             decoration: const InputDecoration(labelText: "Enter your weight"),
           ),
           ElevatedButton(
-            onPressed: !valid.value ? null : () {},
+            onPressed: !valid.value ? null : () {
+              final weight = <String, dynamic>{
+                "weight": controller.text,
+                "time": DateTime.now().millisecondsSinceEpoch,
+              };
+              db.collection("weights").add(weight).then((_) {
+                controller.text = "";
+                valid.value = false;
+              } );
+            },
             child: const Text("Enter"),
           ),
         ],
